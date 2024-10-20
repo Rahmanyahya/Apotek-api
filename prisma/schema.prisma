@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model transaction {
+  id                  Int                  @id @default(autoincrement())
+  cashier_name        String               @default("")
+  order_date          DateTime             @default(now())
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @default(now())
+  transaction_details transaction_detail[]
+}
+
+model transaction_detail {
+  id              Int         @id @default(autoincrement())
+  medicines_id    Int
+  transactions_id Int
+  qty             Int         @default(0)
+  order_price     Float       @default(0)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @default(now())
+  medicines       medicine    @relation(fields: [medicines_id], references: [id])
+  transactions    transaction @relation(fields: [transactions_id], references: [id])
+
+  @@index([medicines_id], map: "transaction_detail_medicines_id_fkey")
+  @@index([transactions_id], map: "transaction_detail_transactions_id_fkey")
+}
+
+model medicine {
+  id                  Int                  @id @default(autoincrement())
+  name                String               @default("")
+  stock               Int                  @default(0)
+  exp_date            DateTime             @default(now())
+  type                medicine_type
+  price               Float                @default(0)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @default(now())
+  photo               String               @default("")
+  transaction_details transaction_detail[]
+}
+
+enum medicine_type {
+  Tablet
+  Syrup
+  Powder
+}
+
+model admin {
+  id        Int      @id @default(autoincrement())
+  name      String   @default("")
+  email     String   @unique @default("")
+  password  String   @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
+
+
